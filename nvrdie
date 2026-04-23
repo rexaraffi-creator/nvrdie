@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Never Die | Official Streetwear Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --red: #ff0000; --dark: #050505; --card: #0e0e0e; --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
+        
+        @media (min-width: 1024px) {
+            #cursor { width: 20px; height: 20px; background: rgba(255, 0, 0, 0.5); border-radius: 50%; position: fixed; pointer-events: none; z-index: 10000; transition: transform 0.1s ease; mix-blend-mode: difference; display: block; }
+        }
+        #cursor { display: none; }
+
+        body { background: var(--dark); color: #fff; overflow-x: hidden; scroll-behavior: smooth; line-height: 1.6; }
+        body::before { content: " "; position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 9999; background-size: 100% 3px, 3px 100%; pointer-events: none; }
+
+        nav { position: fixed; top: 0; width: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1001; border-bottom: 1px solid #111; }
+        .logo { font-weight: 900; font-size: 1.4rem; color: #fff; text-decoration: none; letter-spacing: -1px; }
+        .logo span { color: var(--red); }
+
+        .marquee { position: fixed; top: 65px; width: 100%; background: var(--red); color: #fff; padding: 6px 0; z-index: 1000; overflow: hidden; display: flex; }
+        .marquee-content { display: flex; white-space: nowrap; animation: scroll-smooth 40s linear infinite; }
+        .marquee-content span { font-size: 10px; font-weight: 900; text-transform: uppercase; padding: 0 30px; font-style: italic; }
+        @keyframes scroll-smooth { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        .container { padding: 140px 5% 50px 5%; max-width: 1400px; margin: auto; }
+        .products-grid { display: grid; gap: 20px; grid-template-columns: repeat(2, 1fr); }
+        @media (min-width: 768px) { .products-grid { grid-template-columns: repeat(3, 1fr); gap: 30px; } }
+
+        .product-card { background: #0a0a0a; padding: 15px; border-radius: 20px; border: 1px solid #111; transition: 0.4s; position: relative; }
+        .product-card:hover { border-color: var(--red); transform: translateY(-5px); }
+        .img-box { width: 100%; aspect-ratio: 1/1; background: #151515; border-radius: 15px; overflow: hidden; margin-bottom: 10px; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .hero { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; overflow: hidden; padding-top: 100px; }
+        .hero::after { content: "NEVER DIE"; position: absolute; font-size: 25vw; font-weight: 900; color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, 0.05); z-index: 0; white-space: nowrap; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-5deg); letter-spacing: -5px; pointer-events: none; }
+        .hero h1 { font-size: 12vw; font-weight: 900; line-height: 0.85; position: relative; z-index: 2; text-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        @media (min-width: 768px) { .hero h1 { font-size: 8vw; } }
+        .hero h1 span { color: var(--red); }
+
+        .cart-drawer { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: #000; z-index: 3000; transition: var(--transition); padding: 25px; display: flex; flex-direction: column; }
+        @media (min-width: 768px) { .cart-drawer { width: 450px; border-left: 2px solid var(--red); } }
+        .cart-drawer.open { right: 0; }
+        
+        .cart-items-container { flex: 1; overflow-y: auto; margin: 15px 0; padding-right: 5px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #0e0e0e; border: 1px solid #1a1a1a; margin-bottom: 8px; border-radius: 10px; font-size: 13px; }
+
+        .input-box { width: 100%; padding: 12px; background: #111; border: 1px solid #222; color: #fff; margin-bottom: 8px; border-radius: 8px; font-size: 13px; outline: none; }
+        .btn-order { width: 100%; padding: 16px; background: var(--red); border: none; color: #fff; font-weight: 900; text-transform: uppercase; cursor: pointer; border-radius: 10px; font-size: 14px; }
+        .btn-order:disabled { background: #222 !important; opacity: 0.5; cursor: not-allowed; }
+
+        .qty-input { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 10px 0; }
+        .qty-btn { background: #222; border: none; color: #fff; width: 30px; height: 30px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2500; display: none; backdrop-filter: blur(5px); }
+        .faq-item { background: #0a0a0a; padding: 15px; border-left: 3px solid var(--red); margin-bottom: 10px; border-radius: 0 10px 10px 0; font-size: 13px; }
+
+        #toast { position: fixed; top: 20px; right: -300px; background: #28a745; color: white; padding: 15px 25px; border-radius: 8px; font-weight: bold; z-index: 9999; transition: 0.5s; }
+    </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="toast">✅ Pesanan Terkirim!</div>
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+<nav>
+    <a href="index.html" class="logo">NEVER<span>DIE</span></a>
+    <button id="cartBtn" onclick="toggleCart()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer; position:relative;">
+        🛒 <span id="cartCountBadge" style="position:absolute; top:-5px; right:-10px; background:var(--red); font-size:10px; padding:2px 6px; border-radius:10px; font-weight:900;">0</span>
+    </button>
+</nav>
+
+<div class="marquee">
+    <div class="marquee-content">
+        <span>🔥🔥 PRINGSEWU FREE ONGKIR — NEVER DIE STREETWEAR — NEW DROP AVAILABLE — LOCAL LEVEL UP — 🔥🔥</span>
+        <span>🔥🔥 PRINGSEWU FREE ONGKIR — NEVER DIE STREETWEAR — NEW DROP AVAILABLE — LOCAL LEVEL UP — 🔥🔥</span>
+    </div>
+</div>
+
+<div class="cart-drawer" id="cartDrawer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="font-weight:900; font-size:1.5rem;">MY <span style="color:var(--red)">BAG</span></h2>
+        <button onclick="toggleCart()" style="background:#222; border:none; color:#fff; padding:5px 15px; border-radius:5px; font-size:12px; font-weight:900;">CLOSE</button>
+    </div>
+    <div class="cart-items-container" id="cartItemsList"></div>
+    <div style="border-top:1px solid #222; padding-top:15px;">
+        <div style="display:flex; justify-content:space-between; font-weight:900; margin-bottom:15px; font-size:1.1rem;">
+            <span>TOTAL:</span><span id="drawerTotal" style="color:var(--red)">Rp 0</span>
+        </div>
+        <select id="wilayah" onchange="updateTotal()" class="input-box">
+            <option value="0">Pilih Lokasi Pengiriman</option>
+            <option value="0">Pringsewu (Free)</option>
+            <option value="15000">Bandar Lampung / Metro</option>
+            <option value="18000">Lampung Selatan / Tengah</option>
+            <option value="20000">Lampung Utara / Timur</option>
+            <option value="25000">Lampung Barat / Tanggamus</option>
+            <option value="40000">Luar Lampung</option>
+        </select>
+        <input type="text" id="nama" placeholder="Nama Lengkap" class="input-box">
+        <input type="text" id="wa" placeholder="WhatsApp (08...)" class="input-box">
+        <button id="btnMaps" onclick="getLocation()" class="input-box" style="background:#0a0a0a; border:1px dashed var(--red); color:#fff; cursor:pointer; font-weight:bold;">Pinpoint My Location 📍</button>
+        <textarea id="alamat" placeholder="Alamat Detail" rows="2" class="input-box"></textarea>
+        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+            <input type="text" id="promoCode" placeholder="Kode Promo" class="input-box" style="margin-bottom:0">
+            <button onclick="applyPromo()" style="background:#333; color:#fff; border:none; padding:0 15px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:900;">APPLY</button>
+        </div>
+        <div id="promoMsg" style="font-size:10px; font-weight:bold; margin-bottom:10px;"></div>
+        <button class="btn-order" onclick="confirmPayment()">CHECKOUT VIA WA</button>
+    </div>
+</div>
+
+<div id="main-content">
+    <div class="hero">
+        <h1>LOCAL<br><span>LEVEL UP.</span></h1>
+        <p style="color:#666; font-weight:bold; position: relative; z-index: 2;">Quality is <span id="typing-text" style="color:#fff"></span></p>
+    </div>
+
+    <div class="container">
+        <div class="products-grid">
+            <div class="product-card" data-name="T-shirt Never Die" data-price="199000">
+                <div class="img-box"><img src="foto1.jpg" alt="Product"></div>
+                <h3 style="font-size:14px;">T-shirt Never Die</h3>
+                <p style="color:var(--red); font-weight:900; font-size:14px;">Rp 199.000</p>
+                <select class="input-box" style="margin-top:10px;"><option value="">Size</option><option>M</option><option>L</option><option>XL</option></select>
+                <div class="qty-input">
+                    <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty-val">0</span>
+                    <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                </div>
+                <button class="btn-order" style="padding:10px;" onclick="addToCart(this)" disabled>ADD</button>
+            </div>
+            
+            <div class="product-card" data-name="Hoodie Zipper Maroon" data-price="550000">
+                <div class="img-box"><img src="foto2.jpg" alt="Product"></div>
+                <h3 style="font-size:14px;">Hoodie Zipper</h3>
+                <p style="color:var(--red); font-weight:900; font-size:14px;">Rp 550.000</p>
+                <select class="input-box" style="margin-top:10px;"><option value="">Size</option><option>M</option><option>L</option></select>
+                <div class="qty-input">
+                    <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty-val">0</span>
+                    <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                </div>
+                <button class="btn-order" style="padding:10px;" onclick="addToCart(this)" disabled>ADD</button>
+            </div>
+
+            <div class="product-card" data-name="Baggy Denim" data-price="330000">
+                <div class="img-box"><img src="foto3.jpg" alt="Product"></div>
+                <h3 style="font-size:14px;">Baggy Denim</h3>
+                <p style="color:var(--red); font-weight:900; font-size:14px;">Rp 330.000</p>
+                <select class="input-box" style="margin-top:10px;"><option value="">Size</option><option>28</option><option>30</option><option>32</option></select>
+                <div class="qty-input">
+                    <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty-val">0</span>
+                    <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                </div>
+                <button class="btn-order" style="padding:10px;" onclick="addToCart(this)" disabled>ADD</button>
+            </div>
+
+            <div class="product-card" data-name="Camo Cargo" data-price="365000">
+                <div class="img-box"><img src="foto4.jpg" alt="Product"></div>
+                <h3 style="font-size:14px;">Camo Cargo</h3>
+                <p style="color:var(--red); font-weight:900; font-size:14px;">Rp 365.000</p>
+                <select class="input-box" style="margin-top:10px;"><option value="">Size</option><option>30</option><option>32</option></select>
+                <div class="qty-input">
+                    <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty-val">0</span>
+                    <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                </div>
+                <button class="btn-order" style="padding:10px;" onclick="addToCart(this)" disabled>ADD</button>
+            </div>
+
+            <div class="product-card" data-name="Kemeja Boxy" data-price="299000">
+                <div class="img-box"><img src="foto5.jpg" alt="Product"></div>
+                <h3 style="font-size:14px;">Kemeja Boxy</h3>
+                <p style="color:var(--red); font-weight:900; font-size:14px;">Rp 299.000</p>
+                <select class="input-box" style="margin-top:10px;"><option value="">Size</option><option>M</option><option>L</option></select>
+                <div class="qty-input">
+                    <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty-val">0</span>
+                    <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                </div>
+                <button class="btn-order" style="padding:10px;" onclick="addToCart(this)" disabled>ADD</button>
+            </div>
+
+            <div class="product-card" data-name="Black Hoodie" data-price="345000">
+                <div class="img-box"><img src="foto6.jpg" alt="Product"></div>
+                <h3 style="font-size:14px;">Black Hoodie</h3>
+                <p style="color:var(--red); font-weight:900; font-size:14px;">Rp 345.000</p>
+                <select class="input-box" style="margin-top:10px;"><option value="">Size</option><option>L</option><option>XL</option></select>
+                <div class="qty-input">
+                    <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                    <span class="qty-val">0</span>
+                    <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                </div>
+                <button class="btn-order" style="padding:10px;" onclick="addToCart(this)" disabled>ADD</button>
+            </div>
+        </div>
+
+        <div class="faq-grid" style="margin-top:50px;">
+            <h2 style="font-weight:900; margin-bottom:20px;">F.A.Q</h2>
+            <div class="faq-item">PENGIRIMAN: Order sebelum jam 16:00 WIB dikirim hari yang sama.</div>
+            <div class="faq-item">RETUR: Wajib video unboxing untuk klaim retur/tukar size.</div>
+        </div>
+    </div>
+</div>
+
+<footer style="text-align:center; padding:40px; opacity:0.3; font-size:10px;">© 2026 NEVER DIE CLOTHING CO.</footer>
+
+<script>
+    const cursor = document.getElementById('cursor');
+    if(window.innerWidth > 1024) {
+        document.addEventListener('mousemove', (e) => { 
+            cursor.style.left = e.clientX-10+'px'; 
+            cursor.style.top = e.clientY-10+'px'; 
+        });
+    }
+
+    let cart = [], subtotal = 0, discount = 0, activePromo = "", mapLink = "Tidak disertakan";
+
+    function showToast() {
+        const t = document.getElementById('toast');
+        t.style.right = '20px';
+        setTimeout(() => { t.style.right = '-300px'; }, 3000);
+    }
+
+    function toggleCart() {
+        document.getElementById('cartDrawer').classList.toggle('open');
+        document.getElementById('overlay').style.display = document.getElementById('cartDrawer').classList.contains('open') ? 'block' : 'none';
+        document.body.style.overflow = document.getElementById('cartDrawer').classList.contains('open') ? 'hidden' : 'auto';
+    }
+
+    function changeQty(btn, delta) {
+        const container = btn.parentElement;
+        const valSpan = container.querySelector('.qty-val');
+        const addBtn = container.parentElement.querySelector('.btn-order');
+        let current = parseInt(valSpan.innerText);
+        current += delta;
+        if (current < 0) current = 0;
+        valSpan.innerText = current;
+        addBtn.disabled = (current === 0);
+    }
+
+    function addToCart(btn) {
+        const card = btn.parentElement;
+        const name = card.dataset.name;
+        const price = parseInt(card.dataset.price);
+        const size = card.querySelector('select').value;
+        const qty = parseInt(card.querySelector('.qty-val').innerText);
+
+        if(!size) return alert("Pilih size!");
+
+        const existing = cart.find(i => i.name === name && i.size === size);
+        if(existing) {
+            existing.qty += qty;
+            existing.total = existing.qty * price;
+        } else {
+            cart.push({ name, price, size, qty, total: qty * price });
+        }
+
+        card.querySelector('.qty-val').innerText = "0";
+        btn.disabled = true;
+        updateUI();
+    }
+
+    function removeItem(idx) { cart.splice(idx, 1); updateUI(); }
+
+    function updateUI() {
+        subtotal = cart.reduce((acc, i) => acc + i.total, 0);
+        document.getElementById('cartCountBadge').innerText = cart.length;
+        document.getElementById('cartItemsList').innerHTML = cart.map((i, idx) => `
+            <div class="cart-item">
+                <div><b>${i.qty}x ${i.name}</b><br><small>${i.size} | Rp ${i.total.toLocaleString()}</small></div>
+                <button onclick="removeItem(${idx})" style="background:var(--red); border:none; color:#fff; padding:5px 10px; border-radius:5px; cursor:pointer;">✕</button>
+            </div>`).join('');
+        updateTotal();
+    }
+
+    function applyPromo() {
+        const code = document.getElementById('promoCode').value.toUpperCase();
+        const msg = document.getElementById('promoMsg');
+        if (code === "MEMBER10") {
+            discount = subtotal * 0.1; activePromo = "MEMBER10 (10%)";
+            msg.innerText = "PROMO AKTIF! ✅"; msg.style.color = "#28a745";
+        } else if (code === "NEVERDIE20") {
+            discount = subtotal * 0.2; activePromo = "NEVERDIE20 (20%)";
+            msg.innerText = "DISKON BESAR! ✅"; msg.style.color = "#28a745";
+        } else {
+            discount = 0; activePromo = "";
+            msg.innerText = "KODE SALAH! ❌"; msg.style.color = "var(--red)";
+        }
+        updateTotal();
+    }
+
+    function updateTotal() {
+        const ongkir = parseInt(document.getElementById('wilayah').value);
+        const final = subtotal + ongkir - discount;
+        document.getElementById('drawerTotal').innerText = "Rp " + (final < 0 ? 0 : final).toLocaleString();
+    }
+
+    function getLocation() {
+        const btn = document.getElementById('btnMaps');
+        btn.innerText = "Locking... 🛰️";
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                mapLink = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+
+                btn.innerText = "Lokasi Terkunci ✅"; btn.style.color = "#28a745";
+            }, function() { alert("Gagal ambil lokasi!"); btn.innerText = "Pinpoint My Location 📍"; });
+        }
+    }
+
+    function confirmPayment() {
+        const n = document.getElementById('nama').value, w = document.getElementById('wa').value, a = document.getElementById('alamat').value;
+        const wil = document.getElementById('wilayah'), ongkir = parseInt(wil.value), wilNama = wil.options[wil.selectedIndex].text;
+        
+        if(cart.length === 0 || n.length < 3 || w.length < 10) return alert("Lengkapi pesanan & data!");
+
+        const orderId = "ND" + Date.now().toString().slice(-4);
+        const totalFinal = subtotal + ongkir - discount;
+
+        let pesan = `*💀 NEVER DIE - OFFICIAL ORDER 💀*\n==========================\n*ID ORDER :* #${orderId}\n==========================\n\n*DAFTAR BARANG:*\n`;
+        cart.forEach((i, idx) => { pesan += `*${i.qty}x* ${i.name.toUpperCase()}\n      └─ [${i.size}] - Rp ${i.total.toLocaleString()}\n`; });
+        pesan += `\n*RINCIAN BIAYA:*\nSubtotal : Rp ${subtotal.toLocaleString()}\nOngkir   : Rp ${ongkir.toLocaleString()} (${wilNama})\n`;
+        if(discount > 0) pesan += `Promo    : -Rp ${discount.toLocaleString()} (${activePromo})\n`;
+        pesan += `--------------------------\n*TOTAL : Rp ${totalFinal.toLocaleString()}*\n--------------------------\n\n*DATA PENERIMA:*\n👤 *Nama:* ${n}\n📍 *Alamat:* ${a}\n🗺️ *Maps:* ${mapLink}\n\n_Mohon segera diproses ya Min!_ 🔥`;
+
+        showToast();
+        window.open(`https://wa.me/6282178773186?text=${encodeURIComponent(pesan)}`, '_blank');
+        tampilkanTerimaKasih(n, totalFinal);
+    }
+
+    function tampilkanTerimaKasih(nama, total) {
+        closeAll();
+        document.getElementById('main-content').innerHTML = `
+            <div style="text-align: center; padding: 100px 5%; animation: fadeIn 0.8s ease;">
+                <h1 style="font-size: 8vw; font-weight: 900; color: var(--red); line-height: 1;">RESPECT,<br>${nama.toUpperCase()}! 💀</h1>
+                <p style="margin: 20px 0 40px; opacity: 0.6;">Pesananmu telah diteruskan ke WhatsApp Admin.</p>
+                <div style="background: #0a0a0a; border: 1px solid #222; padding: 30px; border-radius: 25px; display: inline-block; width: 100%; max-width: 450px;">
+                    <h3 style="font-size: 0.8rem; letter-spacing: 2px; color: #666; margin-bottom: 10px;">TOTAL TAGIHAN</h3>
+                    <h2 style="font-size: 2rem; font-weight: 900; color: #fff; margin-bottom: 25px;">Rp ${total.toLocaleString()}</h2>
+                    <div style="text-align: left; background: #111; padding: 15px; border-radius: 15px; font-size: 13px;">
+                        <p style="color:#666; margin-bottom: 5px;">Transfer Pembayaran ke:</p>
+                        <p style="font-weight: 900; font-size: 1.1rem; color: #fff;">BCA 123-456-7890</p>
+                        <p style="opacity: 0.8;">a/n NEVER DIE OFFICIAL</p>
+                    </div>
+                </div>
+                <div style="margin-top: 50px;"><a href="index.html" style="color: #fff; text-decoration: none; font-weight: 900; font-size: 12px; border: 1px solid #333; padding: 15px 40px; border-radius: 50px; text-transform: uppercase;">Belanja Lagi</a></div>
+            </div>`;
+        cart = []; subtotal = 0; discount = 0; updateUI();
+    }
+
+    function closeAll() { document.getElementById('cartDrawer').classList.remove('open'); document.getElementById('overlay').style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+    const phrases = ["NEVER DIE.", "QUALITY.", "AUTHENTIC."];
+    let pi=0, pj=0, isDel=false;
+    function type() {
+        let curr = phrases[pi];
+        let target = document.getElementById("typing-text");
+        if(target) {
+            target.innerText = curr.substring(0, pj);
+            if(isDel) pj--; else pj++;
+            if(!isDel && pj === curr.length) { isDel = true; setTimeout(type, 2000); return; }
+            if(isDel && pj === 0) { isDel = false; pi = (pi + 1) % phrases.length; }
+            setTimeout(type, isDel ? 50 : 100);
+        }
+    }
+    window.onload = type;
+</script>
+</body>
+</html>
